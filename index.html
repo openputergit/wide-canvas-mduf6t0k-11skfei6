@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+</head>
+<style>
+    body {
+        font-family: 'Inter', sans-serif;
+    }
+    .login-bg {
+        background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+    }
+    .dashboard-nav {
+        height: calc(100vh - 64px);
+    }
+</style>
+<body class="bg-gray-50">
+    <!-- Login Section -->
+    <div id="loginSection" class="min-h-screen login-bg flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg p-8 shadow-xl w-full max-w-md">
+            <h2 class="text-2xl font-bold text-center mb-6">Faculty Management System</h2>
+            <form id="loginForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Email</label>
+                    <input type="email" id="email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Password</label>
+                    <input type="password" id="password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" required>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white rounded-md py-2 hover:bg-blue-700 transition">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dashboard Section -->
+    <div id="dashboardSection" class="hidden">
+        <!-- Header -->
+        <header class="bg-white shadow-sm">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+                <h1 class="text-xl font-semibold">Faculty Dashboard</h1>
+                <button id="logoutBtn" class="text-gray-600 hover:text-gray-900">
+                    <i class="bi bi-box-arrow-right text-xl"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="flex">
+            <!-- Sidebar -->
+            <nav class="w-64 bg-white shadow-sm dashboard-nav">
+                <div class="p-4 space-y-2">
+                    <button class="nav-btn w-full text-left px-4 py-2 rounded hover:bg-blue-50" data-target="research">
+                        <i class="bi bi-journal-text mr-2"></i> Research
+                    </button>
+                    <button class="nav-btn w-full text-left px-4 py-2 rounded hover:bg-blue-50" data-target="submissions">
+                        <i class="bi bi-file-earmark-text mr-2"></i> My Submissions
+                    </button>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <main class="flex-1 p-8">
+                <!-- Research Form Section -->
+                <div id="researchSection" class="hidden">
+                    <h2 class="text-2xl font-semibold mb-6">Research Submission</h2>
+                    <form id="researchForm" class="space-y-6 max-w-3xl">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Title</label>
+                                <input type="text" name="title" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Authors</label>
+                                <input type="text" name="authors" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Publication Date</label>
+                                <input type="date" name="pubDate" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Journal/Conference</label>
+                                <input type="text" name="journal" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Abstract</label>
+                            <textarea name="abstract" rows="4" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Upload File</label>
+                            <input type="file" name="file" class="mt-1 block w-full">
+                        </div>
+                        <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition">Submit</button>
+                    </form>
+                </div>
+
+                <!-- Submissions Section -->
+                <div id="submissionsSection" class="hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-semibold">My Submissions</h2>
+                        <div class="space-x-2">
+                            <button id="downloadBtn" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition">
+                                <i class="bi bi-download mr-2"></i>Download
+                            </button>
+                        </div>
+                    </div>
+                    <div class="bg-white shadow-sm rounded-lg overflow-hidden">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="submissionsTable" class="bg-white divide-y divide-gray-200">
+                                <!-- Submissions will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Simulated database
+        let submissions = JSON.parse(localStorage.getItem('submissions')) || [];
+        let currentUser = null;
+
+        // Login handling
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            // Simple authentication (replace with proper authentication in production)
+            if (email && password) {
+                currentUser = { email, role: 'faculty' };
+                document.getElementById('loginSection').classList.add('hidden');
+                document.getElementById('dashboardSection').classList.remove('hidden');
+                loadSubmissions();
+            }
+        });
+
+        // Navigation
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const target = btn.dataset.target;
+                document.querySelectorAll('main > div').forEach(div => div.classList.add('hidden'));
+                document.getElementById(`${target}Section`).classList.remove('hidden');
+            });
+        });
+
+        // Research form submission
+        document.getElementById('researchForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const submission = {
+                id: Date.now(),
+                title: formData.get('title'),
+                authors: formData.get('authors'),
+                pubDate: formData.get('pubDate'),
+                journal: formData.get('journal'),
+                abstract: formData.get('abstract'),
+                status: 'Pending Review',
+                submittedBy: currentUser.email,
+                submittedDate: new Date().toISOString()
+            };
+            
+            submissions.push(submission);
+            localStorage.setItem('submissions', JSON.stringify(submissions));
+            e.target.reset();
+            loadSubmissions();
+            alert('Submission successful!');
+        });
+
+        // Load submissions
+        function loadSubmissions() {
+            const table = document.getElementById('submissionsTable');
+            table.innerHTML = '';
+            
+            submissions.filter(s => s.submittedBy === currentUser.email).forEach(sub => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">${sub.title}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${new Date(sub.submittedDate).toLocaleDateString()}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                            ${sub.status === 'Approved' ? 'bg-green-100 text-green-800' : 
+                            sub.status === 'Rejected' ? 'bg-red-100 text-red-800' : 
+                            'bg-yellow-100 text-yellow-800'}">
+                            ${sub.status}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        ${sub.status === 'Pending Review' ? 
+                            `<button onclick="editSubmission(${sub.id})" class="text-blue-600 hover:text-blue-800 mr-2">
+                                <i class="bi bi-pencil"></i>
+                            </button>` : ''}
+                    </td>
+                `;
+                table.appendChild(row);
+            });
+        }
+
+        // Download submissions
+        document.getElementById('downloadBtn').addEventListener('click', () => {
+            const userSubmissions = submissions.filter(s => s.submittedBy === currentUser.email);
+            const ws = XLSX.utils.json_to_sheet(userSubmissions);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Submissions");
+            XLSX.writeFile(wb, "submissions.xlsx");
+        });
+
+        // Edit submission
+        function editSubmission(id) {
+            const submission = submissions.find(s => s.id === id);
+            if (!submission) return;
+
+            // Populate form with submission data
+            const form = document.getElementById('researchForm');
+            form.title.value = submission.title;
+            form.authors.value = submission.authors;
+            form.pubDate.value = submission.pubDate;
+            form.journal.value = submission.journal;
+            form.abstract.value = submission.abstract;
+
+            // Show research section
+            document.querySelectorAll('main > div').forEach(div => div.classList.add('hidden'));
+            document.getElementById('researchSection').classList.remove('hidden');
+        }
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            currentUser = null;
+            document.getElementById('loginSection').classList.remove('hidden');
+            document.getElementById('dashboardSection').classList.add('hidden');
+        });
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
